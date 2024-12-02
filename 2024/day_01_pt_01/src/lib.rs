@@ -53,12 +53,13 @@ impl IdLists {
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let divided_lists = IdLists::divider(config);
     
-    let ids_left = divided_lists.left;
-    let ids_right = divided_lists.right;
+    let sorted_left = divided_lists.left.clone().sort();
+    let sorted_right = divided_lists.right.clone().sort();
     
-    println!("left list: {ids_left:?}");
-    println!("right list: {ids_right:?}");
-    
+    println!("{sorted_left:?}");
+    println!("{sorted_right:?}"); 
+
+
     Ok(())
 }
 
