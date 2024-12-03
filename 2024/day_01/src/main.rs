@@ -2,7 +2,7 @@ use std::{env, process};
 use day_01::Config;
 
 fn main() {
-    // ex: file_path = Path::new("./day_01/input.txt");
+    // ex: args = "./day_01/input.txt"
 
     let args: Vec<String> = env::args().collect();
 
