@@ -123,6 +123,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
         total_distance += distances[d]
     }
     println!("total distance: {total_distance}");
+    // ex: total distance: 2264607
 
     // part 02
     let similarity_res = find_similarity(sorted_left.to_vec(), sorted_right.to_vec());
@@ -134,7 +135,8 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     for s in 0..similarities.len() {
         total_similarity += similarities[s]
     }
-    println!("total_similarity: {total_similarity}");
+    println!("total similarity: {total_similarity}");
+    // ex: total similarity: 19457120
 
     Ok(())
 }
