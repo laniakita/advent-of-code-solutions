@@ -56,7 +56,7 @@ impl IdLists {
 
         let left_strings: Vec<String> = ids_01.iter().filter(|e| e.len() > 0).cloned().collect();
         let right_strings: Vec<String> = ids_02.iter().filter(|e| e.len() > 0).cloned().collect();
-        
+
         let left = vec_str_to_ints(left_strings);
         let right = vec_str_to_ints(right_strings);
 
@@ -66,11 +66,11 @@ impl IdLists {
 
 pub fn find_distance(left_vec: Vec<i32>, right_vec: Vec<i32>) -> Result<Vec<i32>, &'static str> {
     if left_vec.len() != right_vec.len() {
-        return Err("Lists are unequal!")
+        return Err("Lists are unequal!");
     }
 
     let mut distance_res: Vec<i32> = Vec::new();
-    
+
     for n in 0..left_vec.len() {
         let res = left_vec[n] - right_vec[n];
         distance_res.push(res.abs());
@@ -79,30 +79,62 @@ pub fn find_distance(left_vec: Vec<i32>, right_vec: Vec<i32>) -> Result<Vec<i32>
     Ok(distance_res)
 }
 
+pub fn find_similarity(left_vec: Vec<i32>, right_vec: Vec<i32>) -> Result<Vec<i32>, &'static str> {
+    if left_vec.len() != right_vec.len() {
+        return Err("Lists are unequal!");
+    }
+
+    let mut similarity_res: Vec<i32> = Vec::new();
+
+    for n in 0..left_vec.len() {
+        let mut seen_val: i32 = 0;
+        let curr_left: i32 = left_vec[n];
+
+        for j in 0..right_vec.len() {
+            let curr_right: i32 = right_vec[j];
+            if curr_left == curr_right {
+                seen_val += 1;
+            }
+        }
+
+        let res = curr_left * seen_val;
+        similarity_res.push(res);
+    }
+
+    Ok(similarity_res)
+}
+
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let divided_lists = IdLists::divider(config);
-    
+
     let mut sorted_left = divided_lists.left;
-    let mut sorted_right = divided_lists.right;   
+    let mut sorted_right = divided_lists.right;
     sorted_left.sort();
     sorted_right.sort();
 
-    let distance_res = find_distance(sorted_left, sorted_right);
+    // part 01
+    let distance_res = find_distance(sorted_left.to_vec(), sorted_right.to_vec());
     let distances = distance_res.unwrap_or_else(|err| {
         eprintln!("Error: {}", err);
         vec![]
     });
-
     let mut total_distance: i32 = 0;
-    
     for d in 0..distances.len() {
         total_distance += distances[d]
     }
-    
-    // part 01
     println!("total distance: {total_distance}");
-    
+
+    // part 02
+    let similarity_res = find_similarity(sorted_left.to_vec(), sorted_right.to_vec());
+    let similarities = similarity_res.unwrap_or_else(|err| {
+        eprintln!("Error: {}", err);
+        vec![]
+    });
+    let mut total_similarity: i32 = 0;
+    for s in 0..similarities.len() {
+        total_similarity += similarities[s]
+    }
+    println!("total_similarity: {total_similarity}");
 
     Ok(())
 }
-
