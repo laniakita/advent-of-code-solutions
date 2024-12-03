@@ -16,9 +16,20 @@ impl Config {
     }
 }
 
+pub fn vec_str_to_ints(string_vec: Vec<String>) -> Vec<i32> {
+    let mut int_vec = Vec::new();
+    for s in string_vec {
+        match s.parse::<i32>() {
+            Ok(num) => int_vec.push(num),
+            Err(_) => println!("Error parsing: {}", s),
+        }
+    }
+    int_vec
+}
+
 pub struct IdLists {
-    pub left: Vec<String>,
-    pub right: Vec<String>,
+    pub left: Vec<i32>,
+    pub right: Vec<i32>,
 }
 
 impl IdLists {
@@ -43,22 +54,54 @@ impl IdLists {
             }
         }
 
-        let left: Vec<String> = ids_01.iter().filter(|e| e.len() > 0).cloned().collect();
-        let right: Vec<String> = ids_02.iter().filter(|e| e.len() > 0).cloned().collect();
+        let left_strings: Vec<String> = ids_01.iter().filter(|e| e.len() > 0).cloned().collect();
+        let right_strings: Vec<String> = ids_02.iter().filter(|e| e.len() > 0).cloned().collect();
+        
+        let left = vec_str_to_ints(left_strings);
+        let right = vec_str_to_ints(right_strings);
 
         IdLists { left, right }
     }
 }
 
+pub fn find_distance(left_vec: Vec<i32>, right_vec: Vec<i32>) -> Result<Vec<i32>, &'static str> {
+    if left_vec.len() != right_vec.len() {
+        return Err("Lists are unequal!")
+    }
+
+    let mut distance_res: Vec<i32> = Vec::new();
+    
+    for n in 0..left_vec.len() {
+        let res = left_vec[n] - right_vec[n];
+        distance_res.push(res.abs());
+    }
+
+    Ok(distance_res)
+}
+
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let divided_lists = IdLists::divider(config);
     
-    let sorted_left = divided_lists.left.clone().sort();
-    let sorted_right = divided_lists.right.clone().sort();
-    
-    println!("{sorted_left:?}");
-    println!("{sorted_right:?}"); 
+    let mut sorted_left = divided_lists.left;
+    let mut sorted_right = divided_lists.right;   
+    sorted_left.sort();
+    sorted_right.sort();
 
+    let distance_res = find_distance(sorted_left, sorted_right);
+    let distances = distance_res.unwrap_or_else(|err| {
+        eprintln!("Error: {}", err);
+        vec![]
+    });
+
+    let mut total_distance: i32 = 0;
+    
+    for d in 0..distances.len() {
+        total_distance += distances[d]
+    }
+    
+    // part 01
+    println!("total distance: {total_distance}");
+    
 
     Ok(())
 }
