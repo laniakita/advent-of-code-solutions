@@ -1,8 +1,8 @@
 use std::{env, process};
-use day_01_pt_01::Config;
+use day_01::Config;
 
 fn main() {
-    // ex: file_path = Path::new("./day_01_pt_01/input.txt");
+    // ex: file_path = Path::new("./day_01/input.txt");
 
     let args: Vec<String> = env::args().collect();
 
@@ -11,9 +11,9 @@ fn main() {
         process::exit(1);
     });
     
-    println!("Using {}", config.file_path);
+    println!("using {} as input", config.file_path);
 
-    if let Err(e) = day_01_pt_01::run(config) {
+    if let Err(e) = day_01::run(config) {
         eprint!("Application error: {e}");
         process::exit(1);
     }
