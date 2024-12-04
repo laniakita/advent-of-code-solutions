@@ -25,13 +25,14 @@ pub fn main_filter(reports: String) {
 pub fn is_safe_damp(report_line: Vec<i32>) -> bool {
     let mut dampened_reports: Vec<Vec<i32>> = Vec::new();
 
-    // brute force: generate reports, from a single report, with varying i's removed
+    // brute force: generate reports, from a single report, with various levels removed
     for i in 0..report_line.len() {
         let mut damp_report = report_line.clone();
         damp_report.remove(i.into());
         dampened_reports.push(damp_report);
     }
 
+    // a flag ... for safety
     let mut safety_flag = false;
 
     // test generated reports, break at first success, otherwise keep iterating

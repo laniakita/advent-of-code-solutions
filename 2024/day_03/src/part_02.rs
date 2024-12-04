@@ -1,6 +1,5 @@
 use regex::Regex;
 use std::{error::Error, fs};
-
 use crate::part_01::mul_validator;
 
 pub fn mul_validator_complex(corrupted_string: &str) {

@@ -26,6 +26,7 @@ pub fn is_safe_report(report: Vec<i32>) -> bool {
     //   - increasing (consistently) by 1, 2, or 3
     // unsafe:
     //   - increasing then decreasing (and vice-versa)
+    //   - no change between level
 
     let mut curr_direction: Option<SafeDirectionDeltas> = None; // default: unsafe
 
@@ -37,21 +38,25 @@ pub fn is_safe_report(report: Vec<i32>) -> bool {
         let delta = curr_level.abs_diff(prev_level);
 
         if (delta < 1) || (delta > 3) {
-            // unsafe
+            // unsafe (beyond safe limits)
             curr_direction = None;
             break;
         }
 
         if curr_level > prev_level {
+            // safe (increase)
             curr_direction = Some(SafeDirectionDeltas::Increasing);
         } else if curr_level < prev_level {
+            // safe (decrease)
             curr_direction = Some(SafeDirectionDeltas::Decreasing);
         } else {
+            // unsafe (no change)
             curr_direction = None;
             break;
         }
 
         if i > 1 && curr_direction != prev_direction {
+            // unsafe (inconsistent)
             curr_direction = None;
             break;
         }
