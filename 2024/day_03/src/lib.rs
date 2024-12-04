@@ -1,4 +1,5 @@
 pub mod part_01;
+pub mod part_02;
 
 pub struct Config {
     pub file_path: String,

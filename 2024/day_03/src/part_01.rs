@@ -1,7 +1,7 @@
 use std::{error::Error, fs};
 use regex::Regex;
 
-pub fn mul_validator(corrupted_string: &str) {
+pub fn mul_validator(corrupted_string: &str) -> i32 {
     // invalid sequence examples:
     //   - mul(1*
     //   - mul(2,3!
@@ -17,7 +17,6 @@ pub fn mul_validator(corrupted_string: &str) {
         let m2 = caps.name("m2").unwrap().as_str();
         (m1, m2)
     }).collect();
-    println!("{instructions:?}");
     
     let mut total_sum = 0;
 
@@ -28,8 +27,9 @@ pub fn mul_validator(corrupted_string: &str) {
         let res = m1.unwrap() * m2.unwrap();
         total_sum += res;
     }
-    
+
     println!("{total_sum}");
+    total_sum
 }
 
 pub fn run(config: crate::Config) -> Result<(), Box<dyn Error>> {
