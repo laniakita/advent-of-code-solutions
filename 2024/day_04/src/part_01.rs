@@ -21,20 +21,10 @@ pub fn check_word(
 
     // all valid coords should be okay as usize
     if valid_coord(grid, u, v) {
-        println!(
-            "({u}, {v}) is valid at ({})",
-            grid[*u as usize][*v as usize]
-        );
-
-        println!(
-            "checking grid[{u}][{v}] == {} == {}",
-            grid[*u as usize][*v as usize],
-            word.chars().nth(index as usize).unwrap()
-        );
 
         if word.chars().nth(index as usize).unwrap() == grid[*u as usize][*v as usize] {
             println!(
-                "yes: ({u}, {v}) is valid at ({})",
+                "yes: ({u}, {v}) is valid with char: ({})",
                 grid[*u as usize][*v as usize]
             );
 

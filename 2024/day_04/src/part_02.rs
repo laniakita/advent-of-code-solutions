@@ -30,7 +30,7 @@ pub fn mas_x_count(input: &str) {
                     if left_diag == "MAS" || left_diag == "SAM" {
                         if right_diag == "MAS" || right_diag == "SAM" {
                             // since both are valid diagonals, we can call this a MAS cross!
-                            println!("found cross! left: {}, right: {}", left_diag, right_diag);
+                            println!("found cross! left: {left_diag}, right: {right_diag}");
                             count += 1;
                         }
                     }
