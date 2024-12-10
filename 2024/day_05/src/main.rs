@@ -13,7 +13,7 @@ fn main() {
     
     println!("using {} as input", config.file_path);
 
-    if let Err(e) = day_05::part_01::run(config) {
+    if let Err(e) = day_05::run(config) {
         eprint!("Application error: {e}");
         process::exit(1);
     }

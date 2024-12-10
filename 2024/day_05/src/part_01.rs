@@ -1,20 +1,15 @@
-use std::{collections::HashMap, error::Error, fs, usize, vec};
+use std::{collections::HashSet, usize};
 
-struct PrintOrder {
-    vec_01: Vec<String>,
-    order_map: PrintOrderMap,
-    vec_02: Vec<Vec<usize>>,
+pub struct Prints {
+    pub instruction_set: HashSet<String>,
+    pub print_updates: Vec<Vec<usize>>,
 }
 
-struct PrintOrderMap {
-    map: HashMap<usize, Vec<usize>>,
-    middle_digit: usize,
-}
-
-impl PrintOrder {
-    fn preprocess(input: &str) -> Self {
-        let mut section_01: Vec<String> = Vec::new();
-        let mut section_02: Vec<String> = Vec::new();
+impl Prints {
+    pub fn build(input: &str) -> Self {
+        let mut instruction_set: HashSet<String> = HashSet::new();
+        // temporay vec to hold each update strings
+        let mut section_02: Vec<String> = Vec::new(); 
         let mut should_switch: bool = false;
 
         for line in input.lines() {
@@ -24,119 +19,118 @@ impl PrintOrder {
             }
 
             if !should_switch {
-                section_01.push(line.to_string());
+                instruction_set.insert(line.to_string());
             } else {
                 section_02.push(line.to_string());
             }
         }
 
-        // pair map
-        let mut pair_map: HashMap<usize, Vec<usize>> = HashMap::new();
-        for pair in section_01.iter() {
-            let pairs: Vec<String> = pair.split("|").map(|m| m.to_string()).collect();
-            let p1: &String = &pairs[0];
-            let p2: &String = &pairs[1];
-
-            let p1: usize = p1.parse().unwrap();
-            let p2: usize = p2.parse().unwrap();
-            let default_vec: Vec<usize> = Vec::new();
-            let current: &Vec<usize> = pair_map.get(&p1).unwrap_or_else(|| &default_vec);
-
-            let mut before: Vec<usize> = current.to_vec();
-            before.push(p2);
-            pair_map.insert(p1, before.to_vec());
-        }
-
-        // section_02 vecs
-        let mut section_02_processed: Vec<Vec<usize>> = Vec::new();
-        for line in section_02.iter() {
-            let tmp_vec: Vec<usize> = line
-                .split(",")
-                .map(|m| m.parse::<usize>().unwrap())
-                .collect();
-            section_02_processed.push(tmp_vec);
-        }
+        let print_updates: Vec<Vec<usize>> = section_02
+            .iter()
+            .map(|instruction_set| {
+                instruction_set
+                    .split(',')
+                    .map(|s| s.parse::<usize>().unwrap())
+                    .collect()
+            })
+            .collect();
 
         Self {
-            vec_01: section_01,
-            order_map: PrintOrderMap {
-                map: pair_map,
-                middle_digit: 0,
-            },
-            vec_02: section_02_processed,
+            instruction_set,
+            print_updates,
         }
     }
-}
-/*
-fn search(index: usize, test_vec: &Vec<usize>, key_map_vec: &Vec<usize>, prev_key: &usize, curr_key: &usize) -> bool {
-    if index == key_map_vec.len() {
-        return true;
+    /*
+     * 0. Loop through update, 
+     * 1. create a experimental instruction pair (e.g. AA|BB),
+     * 2. create an experiment inverse instruction pair (e.g., BB|AA),
+     *    if we find the inverse of the experimental pair in the instruction_set,
+     *    we can assume the update is invalid, as the experimental instruction pair 
+     *    doesn't exist in the instruction_set
+     * 3. For edge cases where neither the experimental pair or the inverse pair exists
+     *    in the instruction_set, we just assume the update is valid,
+     *    assuming a partial match, and continuing the loop
+     * 4. if the loop completes without returning "false" (invalid condition),
+     *    then we can return "true", as the update has no invalid pairs.
+     **/
+    pub fn is_valid_print(&self, update: &Vec<usize>) -> bool {
+        for i in 0..update.len() - 1 {
+            let test_ins_pair = format!("{}|{}", update[i], update[i + 1]);
+            let test_flipped_ins_pair = format!("{}|{}", update[i + 1], update[i]);
+
+            if self.instruction_set.contains(&test_flipped_ins_pair) {
+                println!("Invalid: {test_ins_pair} has inverse rule {test_flipped_ins_pair}");
+                return false;
+            }
+
+            if !self.instruction_set.contains(&test_ins_pair) {
+                println!("OK: {test_ins_pair} doesn't exist");
+                continue;
+            }
+
+            println!("OK: {test_ins_pair} exists as {i} in {}", update.len() - 2);
+        }
+
+        true
     }
 
+    pub fn fix_update(&self, update: &Vec<usize>) -> Vec<usize> {
+        let mut new_update = update.to_vec();
 
-    false
-}
-*/
-fn part_01(input: &str) {
-    let print_order: PrintOrder = PrintOrder::preprocess(input);
-    let order_map = print_order.order_map.map;
+        for i in 0..new_update.len() - 1 {
+            let curr = new_update[i];
+            let next = new_update[i + 1];
 
-    //println!("{:?}", print_order.order_map.map);
-    
-    let mut print_count = 0;
-    let mut good_orders: Vec<Vec<usize>> = Vec::new();
+            let curr_ins_pair = format!("{}|{}", curr, next);
+            let flipped_ins_pair = format!("{}|{}", next, curr);
 
-    for i in 0..print_order.vec_02.len() {
-        let line = print_order.vec_02[i].to_vec();
-
-        for j in 1..line.len() {
-           
-
-            let prev_key = line[j - 1];
-            let curr_key = line[j];
-
-            let map_res = order_map.get(&prev_key);
-
-            if map_res.is_some() {
-                println!("key: {prev_key}: {map_res:?}");
-                let ok_res = map_res.unwrap();
-                if ok_res.contains(&curr_key) {
-                    println!("{prev_key} is before {curr_key}");
-                    if j == line.len() - 1 {
-                        println!("CAN PRINT!");
-                        good_orders.push(line.to_vec());
-                        print_count += 1;
-                    }
-                }
+            // find the inverse pairs in the bad_new_update, then fix the update to correct
+            if self.instruction_set.contains(&flipped_ins_pair) {
+                println!("Invalid: {curr_ins_pair} has inverse rule {flipped_ins_pair}");
+                println!("Ammending ... ");
+                new_update[i] = next;
+                new_update[i + 1] = curr;
             }
         }
+
+        if !self.is_valid_print(&new_update) {
+            self.fix_update(&new_update)
+        } else {
+            new_update
+        }
     }
 
-    println!("{print_count}");
-    
-    let mut mid_count = 0;
-    for order in good_orders {
-        
-        let middle_digit = ((order.len() / 2) as f32).floor();
+    pub fn find_middle_page(update: &Vec<usize>) -> usize {
+        // WARN: assumes update is odd in length
+        let middle_digit = ((update.len() / 2) as f32).floor();
         let middle_digit: usize = middle_digit as usize;
-        
-        
-        let middle_page = order[middle_digit];
+        let middle_page = update[middle_digit];
 
-        println!("{} {:?} {}", order.len(), order, middle_page);
+        println!("{} {:?} {}", update.len(), update, middle_page);
 
-        mid_count += middle_page;
+        let mid_count = middle_page;
+        mid_count
+    }
+}
 
+pub fn part_01(input: &str) {
+    let prints = Prints::build(input);
+
+    let mut good_updates: Vec<Vec<usize>> = Vec::new();
+
+    for update in prints.print_updates.iter() {
+        if prints.is_valid_print(&update) {
+            good_updates.push(update.to_vec());
+        }
+    }
+
+    // find the middle page number of each update, then add to running sum total: mid_count
+    let mut mid_count = 0;
+    for update in good_updates {
+        mid_count += Prints::find_middle_page(&update);
     }
 
     println!("{mid_count}");
-
 }
 
-pub fn run(config: crate::Config) -> Result<(), Box<dyn Error>> {
-    let contents = fs::read_to_string(config.file_path).expect("Should read");
 
-    part_01(&contents);
-
-    Ok(())
-}
