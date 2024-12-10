@@ -8,10 +8,10 @@ use crate::part_01::Prints;
  * 3. create a experimental instruction pair (e.g. AA|BB),
  * 4. create an experiment inverse instruction pair (e.g., BB|AA),
  *    if we find the inverse of the experimental pair in the instruction_set,
- *    we can ammend the bad_update vec, by updating the current usize at 
+ *    we can amend the bad_update vec, by updating the current usize at 
  *    index i, to the next usize (cached in next) and vice-versa, updating the
  *    next usize at index i+1, with the current usize (cached in curr). 
- * 5. Once the loop completes, we can check if our "ammended" new_update passes
+ * 5. Once the loop completes, we can check if our "amended" new_update passes
  *    validation, if it doesn't we'll run fix_update again, with the new_update
  *    as input. Otherwise, we can return a valid new_update
  *
@@ -28,7 +28,7 @@ use crate::part_01::Prints;
  *           // find the inverse pairs in the bad_new_update, then fix the update to correct
  *           if self.instruction_set.contains(&flipped_ins_pair) {
  *               println!("Invalid: {curr_ins_pair} has inverse rule {flipped_ins_pair}");
- *               println!("Ammending ... ");
+ *               println!("Amending ... ");
  *               new_update[i] = next;
  *               new_update[i + 1] = curr;
  *           }
