@@ -8,7 +8,7 @@ pub struct Prints {
 impl Prints {
     pub fn build(input: &str) -> Self {
         let mut instruction_set: HashSet<String> = HashSet::new();
-        // temporay vec to hold each update strings
+        // temporary vec to hold each update strings
         let mut section_02: Vec<String> = Vec::new(); 
         let mut should_switch: bool = false;
 
